@@ -10,7 +10,7 @@ import {
 import { useRenderCount } from "@uidotdev/usehooks";
 import { motion } from "framer-motion";
 import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
 export function Main() {
   return (
@@ -24,6 +24,16 @@ export function Main() {
       <UseCountGetterSetter />
     </main>
   );
+}
+
+function usePreviousLog(label: string, value: unknown) {
+  const ref = useRef(value);
+
+  useEffect(() => {
+    ref.current = value;
+  }, [value]);
+
+  console.log(label, ref.current === value);
 }
 
 const countAtom = atom(0);
@@ -40,6 +50,8 @@ function useCount() {
 function useCountSetter() {
   const setCount = useSetAtom(countAtom);
 
+  usePreviousLog("useCountSetter -> setCount", setCount);
+
   return {
     setCount,
   };
@@ -48,6 +60,8 @@ function useCountSetter() {
 function useCountGetterSetter() {
   const count = useAtomValue(countAtom);
   const setCount = useSetAtom(countAtom);
+
+  usePreviousLog("useCountGetterSetter -> setCount", setCount);
 
   return {
     count,
@@ -118,6 +132,8 @@ function UseSetAtom() {
 
 function UseAtomSetter() {
   const [, setCount] = useAtom(countAtom);
+
+  usePreviousLog("UseAtomSetter -> setCount", setCount);
 
   const handleIncrement = useCallback(() => setCount((c) => c + 1), [setCount]);
 
